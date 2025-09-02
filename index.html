@@ -141,8 +141,8 @@
     <script>
         window.addEventListener('load', function () {
             
-            // --- MODIFIED: New Google Apps Script API URL ---
-            const API_URL = 'https://script.google.com/macros/s/AKfycbxpUKCksJOkdC3hGPwF5tOZrJ36mWa7VolRnksrLpP9qiYN_FZgy-LCnYxMQUxMdEBqWg/exec';
+            // --- FINAL CORRECTED API URL ---
+            const API_URL = 'https://script.google.com/macros/s/AKfycbw5SLl8EZ0rSBfrv0eYsL4oeg8TuALwEP461BD74xuITEgzIJuwI0dnDv7-Ul0CFz_bEA/exec';
             
             const form = document.getElementById('admitCardForm');
             const submitButton = document.getElementById('submitButton');
@@ -162,13 +162,11 @@
                 submitButton.textContent = 'Verifying...';
                 errorMessage.textContent = '';
                 
-                // --- MODIFIED: Fetch logic for Google Apps Script API ---
+                // --- CORRECTED FETCH LOGIC FOR GOOGLE APPS SCRIPT API ---
                 fetch(API_URL)
                     .then(response => response.json())
                     .then(apiResponse => {
-                        // The data from Google Apps Script is nested in a 'data' property
                         const studentList = apiResponse.data;
-                        // Find the student in the array of all students
                         const student = studentList.find(s => s['STUDENT ID'] === studentID);
 
                         if (student && student['DATE OF BIRTH'] === dob) {
