@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MVM Nalbari - Admit Card Download</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #0d47a1; --secondary-color: #1565c0; --danger-color: #c62828;
+            --text-color: #212121; --border-color: #e0e0e0; --bg-light: #f5f7fa;
+        }
+        body {
+            font-family: 'Poppins', sans-serif; background-color: var(--bg-light); margin: 0; padding: 20px;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; box-sizing: border-box;
+        }
+        .login-container { width: 100%; max-width: 450px; box-sizing: border-box; }
+        .login-box {
+            background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center;
+        }
+        .logo-login { width: 90px; margin-bottom: 15px; }
+        .login-box h2 { color: var(--primary-color); margin-bottom: 5px; font-size: 22px; }
+        .login-box p { color: #757575; margin-bottom: 30px; }
+        .login-box input {
+            width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 16px; box-sizing: border-box;
+        }
+        .login-box button {
+            width: 100%; background: linear-gradient(45deg, var(--secondary-color), var(--primary-color)); color: white;
+            padding: 12px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: transform 0.2s;
+        }
+        .login-box button:hover { transform: scale(1.02); }
+        .error-message { color: var(--danger-color); margin-top: 15px; font-weight: 500; height: 20px; }
+        .page-container {
+            background: #fff; width: 210mm; box-shadow: 0 0 25px rgba(0,0,0,0.15); box-sizing: border-box; margin: 20px 0;
+            border: 1px solid #ddd;
+        }
+        .admit-card-page, .instructions-page {
+             padding: 15mm; box-sizing: border-box; position: relative; background-color: white; z-index: 1;
+        }
+        .admit-card-page::before {
+            content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 120mm; height: 120mm;
+            background-image: url('logo.png'); background-repeat: no-repeat; background-position: center; background-size: contain; opacity: 0.06; z-index: -1;
+        }
+        .admit-header { display: flex; align-items: center; border-bottom: 2px solid var(--primary-color); padding-bottom: 10px; }
+        .logo-admit { width: 90px; margin-right: 20px; }
+        .header-text { text-align: center; flex-grow: 1; }
+        .header-text h1 { margin: 0; color: var(--primary-color); font-size: 26px; font-weight: 700; }
+        .header-text p { margin: 4px 0; color: #616161; font-size: 14px; }
+        .header-text h2 {
+            margin: 10px 0 0 0; background: linear-gradient(45deg, var(--secondary-color), var(--primary-color)); color: white;
+            padding: 8px; border-radius: 5px; font-size: 20px; font-weight: 600;
+        }
+        .student-details-grid { 
+            display: flex; flex-wrap: wrap; margin: 15px 0; border-bottom: 1px dashed var(--border-color); padding-bottom: 10px;
+        }
+        .detail-item { width: 50%; padding: 6px 0; font-size: 15px; box-sizing: border-box; }
+        .detail-item strong { color: var(--primary-color); width: 110px; display: inline-block;}
+        .student-data { font-weight: 600; color: var(--text-color); }
+        .photo-area { text-align: center; margin-left: 20px; }
+        .photo-box {
+            width: 125px; height: 155px; border: 2px dashed var(--border-color); display: flex; justify-content: center; align-items: center;
+            text-align: center; font-size: 13px; color: #9e9e9e; padding: 10px; margin: 0 auto;
+        }
+        #qrcode { margin-top: 10px; display: flex; justify-content: center; }
+        .exam-schedule h3 { text-align: center; color: var(--primary-color); font-size: 18px; margin-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; }
+        table th, table td { border: 1px solid var(--border-color); padding: 7px; font-size: 13px; vertical-align: middle; text-align: center; white-space: nowrap; }
+        table th { background-color: var(--bg-light); color: var(--primary-color); font-weight: 600; }
+        table th:nth-child(1), table td:nth-child(1), table th:nth-child(2), table td:nth-child(2) { text-align: left; }
+        .signature-box { height: 35px; min-width: 120px; border: 1px solid #bdbdbd; margin: auto; }
+        .admit-footer { display: flex; justify-content: space-between; padding-top: 15px; margin-top: 15px; }
+        .signature { text-align: center; font-size: 15px; color: var(--text-color); font-weight: 500; border-top: 1px solid var(--text-color); padding-top: 5px; }
+        .principal-signature-area { display: flex; flex-direction: column; align-items: center; }
+        .principal-sign { height: 45px; margin-bottom: 0; }
+        .instructions-page h3 { text-align: center; color: var(--primary-color); }
+        .instructions-page ol { line-height: 1.8; font-size: 14px; color: #c62828; }
+        .print-page-break { page-break-before: always; }
+
+        .action-buttons {
+            display: none; width: 100%; max-width: 210mm; margin-top: 20px; gap: 15px;
+        }
+        #downloadButton, #printButton {
+            flex: 1; padding: 15px; color: white; border: none; border-radius: 8px;
+            font-size: 18px; font-weight: 600; cursor: pointer; transition: transform 0.2s;
+        }
+        #downloadButton:hover, #printButton:hover { transform: scale(1.02); }
+        #downloadButton { background: linear-gradient(45deg, #28a745, #218838); }
+        #printButton { background: linear-gradient(45deg, var(--secondary-color), var(--primary-color)); }
+
+        @media (max-width: 800px) {
+            body { padding: 10px; }
+            .page-container { width: 100%; box-shadow: none; border: 1px solid #ccc; }
+            .admit-card-page, .instructions-page { padding: 15px; }
+            .header-text h1 { font-size: 18px; } .header-text h2 { font-size: 16px; }
+            .detail-item { width: 100%; }
+            .action-buttons { flex-direction: column; }
+        }
+
+        @media print {
+            body { margin: 0; padding: 0; background-color: #fff; }
+            .login-container, .action-buttons { display: none !important; }
+            .page-container {
+                box-shadow: none !important; border: none !important; margin: 0 !important; width: 100% !important;
+            }
+            .admit-card-page, .instructions-page { padding: 10mm !important; }
+            .admit-card-page::before { opacity: 0.05; }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container" id="loginContainer">
+        <div class="login-box">
+            <img alt="School Logo" class="logo-login" src="logo.png">
+            <h2>MAHARISHI VIDYA MANDIR, NALBARI</h2>
+            <p>Download Admit Card (Half Yearly Examination 2025)</p>
+            <form id="admitCardForm">
+                <input id="studentID" name="studentID" placeholder="Enter Student ID (e.g., MVMN0901M25)" required="" type="text">
+                <input id="dob" name="dob" placeholder="Enter Date of Birth (DDMMYYYY)" required="" type="text">
+                <button id="submitButton" type="submit">Get Admit Card</button>
+            </form>
+            <p class="error-message" id="errorMessage"></p>
+        </div>
+    </div>
+
+    <div class="page-container" id="admitCardContainer" style="display: none;">
+        <div id="admitCardContent">
+            </div>
+    </div>
+
+    <div class="action-buttons" id="actionButtons">
+        <button id="downloadButton">Download Admit Card</button>
+        <button id="printButton">Print</button>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
+    
+    <script>
+        window.addEventListener('load', function () {
+            
+            // --- MODIFIED: New Google Apps Script API URL ---
+            const API_URL = 'https://script.google.com/macros/s/AKfycbxpUKCksJOkdC3hGPwF5tOZrJ36mWa7VolRnksrLpP9qiYN_FZgy-LCnYxMQUxMdEBqWg/exec';
+            
+            const form = document.getElementById('admitCardForm');
+            const submitButton = document.getElementById('submitButton');
+            const errorMessage = document.getElementById('errorMessage');
+            const loginContainer = document.getElementById('loginContainer');
+            const admitCardContainer = document.getElementById('admitCardContainer');
+            const actionButtons = document.getElementById('actionButtons');
+            const downloadButton = document.getElementById('downloadButton');
+            const printButton = document.getElementById('printButton');
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const studentID = document.getElementById('studentID').value.trim().toUpperCase();
+                const dob = document.getElementById('dob').value.trim();
+                if (!studentID || !dob) { showError('Please fill in both fields.'); return; }
+                submitButton.disabled = true;
+                submitButton.textContent = 'Verifying...';
+                errorMessage.textContent = '';
+                
+                // --- MODIFIED: Fetch logic for Google Apps Script API ---
+                fetch(API_URL)
+                    .then(response => response.json())
+                    .then(apiResponse => {
+                        // The data from Google Apps Script is nested in a 'data' property
+                        const studentList = apiResponse.data;
+                        // Find the student in the array of all students
+                        const student = studentList.find(s => s['STUDENT ID'] === studentID);
+
+                        if (student && student['DATE OF BIRTH'] === dob) {
+                            populateAdmitCard(student);
+                            loginContainer.style.display = 'none';
+                            admitCardContainer.style.display = 'block';
+                            actionButtons.style.display = 'flex';
+                        } else {
+                            showError('Invalid credentials. Please check details.');
+                        }
+                    })
+                    .catch(error => showError('An error occurred. Please try again.'))
+                    .finally(() => {
+                        submitButton.disabled = false;
+                        submitButton.textContent = 'Get Admit Card';
+                    });
+            });
+
+            function populateAdmitCard(data) {
+                const admitCardContentDiv = document.getElementById('admitCardContent');
+                
+                let scheduleRows = '';
+                for (let i = 1; i <= 8; i++) {
+                    const dateKey = `DATE ${i}`;
+                    const paperKey = `PAPER ${i}`;
+                    if (data[dateKey] && data[paperKey]) {
+                        scheduleRows += `<tr><td>${data[dateKey]}</td><td>${data[paperKey]}</td><td><div class="signature-box"></div></td><td><div class="signature-box"></div></td></tr>`;
+                    }
+                }
+
+                const admitCardHTML = `
+                    <div class="admit-card-page">
+                        <header class="admit-header">
+                            <img alt="School Logo" class="logo-admit" src="logo.png">
+                            <div class="header-text">
+                                <h1>MAHARISHI VIDYA MANDIR, NALBARI</h1>
+                                <p>CBSE CURRICULAM</p><p>Batiram Road, Nalbari, PIN-781335</p>
+                                <h2>ADMIT CARD - HALF YEARLY EXAMINATION 2025</h2>
+                            </div>
+                        </header>
+                        <div class="admit-body">
+                            <div style="display: flex; justify-content: space-between;">
+                                <div class="student-details-grid">
+                                    <div class="detail-item"><strong>Student ID:</strong> <span class="student-data">${data['STUDENT ID']}</span></div>
+                                    <div class="detail-item"><strong>Class:</strong> <span class="student-data">${data['CLASS']}</span></div>
+                                    <div class="detail-item"><strong>Student Name:</strong> <span class="student-data">${data["STUDENT'S NAME"]}</span></div>
+                                    <div class="detail-item"><strong>Section:</strong> <span class="student-data">${data['SECTION']}</span></div>
+                                    <div class="detail-item"><strong>Father's Name:</strong> <span class="student-data">${data["FATHER'S NAME"]}</span></div>
+                                    <div class="detail-item"><strong>Roll No:</strong> <span class="student-data">${data['CLASS ROLL NO']}</span></div>
+                                </div>
+                                <div class="photo-area">
+                                    <div class="photo-box">Paste recent passport size photograph here.</div>
+                                    <div id="qrcode"></div>
+                                </div>
+                            </div>
+                            <div class="exam-schedule">
+                                <h3>Examination Schedule</h3>
+                                <table>
+                                    <thead><tr><th>Date</th><th>Subject / Paper</th><th>Student's Signature</th><th>Invigilator's Signature</th></tr></thead>
+                                    <tbody>${scheduleRows}</tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <footer class="admit-footer">
+                            <div class="signature">Student's Signature</div>
+                            <div class="principal-signature-area">
+                                <img alt="Principal's Signature" class="principal-sign" src="sign.png">
+                                <div class="signature">Principal's Signature</div>
+                            </div>
+                        </footer>
+                    </div>`;
+
+                const instructionsHTML = `
+                    <div class="instructions-page print-page-break">
+                        <h3>Instructions for Candidates</h3>
+                        <ol>
+                            <li>Candidates must carry this Admit Card to the examination hall on all days.</li>
+                            <li>All candidates must report to the school before 8:45 AM. The school gate will be closed at 8:45 AM. No candidate will be permitted to enter the examination hall after this time under any circumstances.</li>
+                            <li> Exam Timing- Class I to Class IV - 9:30 am To 11:30 am   &  Class V, VI, VII, VIII & IX - 9:30 am To 12:30 pm </li>
+                            <li> During major exams, for Class I, II, III & IV, the school will get over at 12:45 pm.(Oral Exam: 11:30 am to 12:45 pm) </li>
+                            <li> During major exams for Class V, the school will get over at 1:30 pm. (Oral Exam: 12:30 am to 1:30 pm) </li>
+                            <li> During major exams for Class VI, VII, VIII & IX, the school will get over at 12:30 pm. </li>
+                            <li>Oral exams will be held on the same day with the main subject. </li>
+                            <li> On 25th & 26th September 2025, for Class VII & VIII, the school will get over at 11:30 am respectively. </li>
+                            <li>No electronic devices (mobiles, smart watches, etc.) are allowed in the examination hall.</li>
+                            <li>Candidates should not write anything on the admit card except for the required signatures.</li>
+                        </ol>
+                    </div>`;
+
+                admitCardContentDiv.innerHTML = admitCardHTML + instructionsHTML;
+
+                new QRCode(document.getElementById('qrcode'), {
+                    text: `ID: ${data['STUDENT ID']}, Name: ${data["STUDENT'S NAME"]}, Class: ${data['CLASS']}`,
+                    width: 110, height: 110,
+                });
+            }
+
+            function showError(message) { errorMessage.textContent = message; }
+            
+            downloadButton.addEventListener('click', () => {
+                window.print();
+            });
+
+            printButton.addEventListener('click', () => {
+                window.print();
+            });
+        });
+    </script>
+</body>
+</html>
